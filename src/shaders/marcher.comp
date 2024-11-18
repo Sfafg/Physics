@@ -1,0 +1,103 @@
+#version 450
+#include "MarchTables.comp"
+#include "Terrain.comp"
+
+vec3 interpolateVerts(vec4 v1, vec4 v2,float isoLevel);
+vec3 gradient(vec3 point);
+layout( push_constant ) uniform PushConstants
+{
+	mat4 chunkMat; 
+	uint resolution;
+};
+layout(std430, binding = 0) readonly buffer PointSSBOIn { float points[ ]; };
+layout(std430, binding = 1) buffer PositionSSBOOut { vec4 positions[ ]; };
+layout(std430, binding = 2) buffer NormalSSBOOut { vec4 normals[ ]; };
+layout(std430, binding = 3) buffer BufferOffset{uint bufferOffset;};
+
+layout (local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
+
+float ValueAt(uvec3 point)
+{
+  uint index = point.x + point.y * resolution + point.z * resolution * resolution;
+  return points[index];
+}
+
+void main() 
+{
+  uint index = gl_GlobalInvocationID.x;
+  if(index > pow(resolution - 1,3)) return;
+
+  uint cubeResolution = resolution - 1;
+  uvec3 id = uvec3(index % cubeResolution,(index / cubeResolution) % cubeResolution, index / cubeResolution / cubeResolution);
+  uvec3 cornerIndices[8] = {
+    uvec3(id.x, id.y, id.z),
+    uvec3(id.x + 1, id.y, id.z),
+    uvec3(id.x + 1, id.y, id.z + 1),
+    uvec3(id.x, id.y, id.z + 1),
+    uvec3(id.x, id.y + 1, id.z),
+    uvec3(id.x + 1, id.y + 1, id.z),
+    uvec3(id.x + 1, id.y + 1, id.z + 1),
+    uvec3(id.x, id.y + 1, id.z + 1)
+  };
+
+  vec4 cubeCorners[8] = {
+    vec4(vec3(cornerIndices[0]) / cubeResolution, ValueAt(cornerIndices[0])),
+    vec4(vec3(cornerIndices[1]) / cubeResolution, ValueAt(cornerIndices[1])),
+    vec4(vec3(cornerIndices[2]) / cubeResolution, ValueAt(cornerIndices[2])),
+    vec4(vec3(cornerIndices[3]) / cubeResolution, ValueAt(cornerIndices[3])),
+    vec4(vec3(cornerIndices[4]) / cubeResolution, ValueAt(cornerIndices[4])),
+    vec4(vec3(cornerIndices[5]) / cubeResolution, ValueAt(cornerIndices[5])),
+    vec4(vec3(cornerIndices[6]) / cubeResolution, ValueAt(cornerIndices[6])),
+    vec4(vec3(cornerIndices[7]) / cubeResolution, ValueAt(cornerIndices[7]))
+  };
+
+  float isoLevel = 0.5;
+  int configurationIndex = 0;
+  if (cubeCorners[0].w > isoLevel) configurationIndex |= 1;
+  if (cubeCorners[1].w > isoLevel) configurationIndex |= 2;
+  if (cubeCorners[2].w > isoLevel) configurationIndex |= 4;
+  if (cubeCorners[3].w > isoLevel) configurationIndex |= 8;
+  if (cubeCorners[4].w > isoLevel) configurationIndex |= 16;
+  if (cubeCorners[5].w > isoLevel) configurationIndex |= 32;
+  if (cubeCorners[6].w > isoLevel) configurationIndex |= 64;
+  if (cubeCorners[7].w > isoLevel) configurationIndex |= 128;
+
+  for (int i = 0; UnpackTriangulation(configurationIndex,i) != 15; i +=3) 
+  {
+    int a0 = cornerIndexAFromEdge[UnpackTriangulation(configurationIndex,i)];
+    int b0 = cornerIndexBFromEdge[UnpackTriangulation(configurationIndex,i)];
+    int a1 = cornerIndexAFromEdge[UnpackTriangulation(configurationIndex,i+1)];
+    int b1 = cornerIndexBFromEdge[UnpackTriangulation(configurationIndex,i+1)];
+    int a2 = cornerIndexAFromEdge[UnpackTriangulation(configurationIndex,i+2)];
+    int b2 = cornerIndexBFromEdge[UnpackTriangulation(configurationIndex,i+2)];
+    
+    vec3 a = interpolateVerts(cubeCorners[a0], cubeCorners[b0], isoLevel) - vec3(0.5, 0.5, 0.5);
+    vec3 b = interpolateVerts(cubeCorners[a1], cubeCorners[b1], isoLevel) - vec3(0.5, 0.5, 0.5);
+    vec3 c = interpolateVerts(cubeCorners[a2], cubeCorners[b2], isoLevel) - vec3(0.5, 0.5, 0.5);
+
+    uint ind = atomicAdd(bufferOffset,3);
+    positions[ind] = vec4(a,0);
+    positions[ind + 1] = vec4(b,0);
+    positions[ind + 2] = vec4(c,0);
+    
+    normals[ind] = vec4(gradient(a),0);
+    normals[ind + 1] = vec4(gradient(b),0);
+    normals[ind + 2] = vec4(gradient(c),0);
+  }
+}
+
+vec3 interpolateVerts(vec4 v1, vec4 v2, float isoLevel) {
+    float t = (isoLevel - v1.w) / (v2.w - v1.w);
+    return v1.xyz + t * (v2.xyz-v1.xyz);
+}
+
+vec3 gradient(vec3 point)
+{
+  point = (chunkMat * vec4(point,1)).xyz;
+  vec2 e = vec2(0,0.625);
+  vec3 normal;
+  normal.x = sampleTerrain(point-e.yxx) - sampleTerrain(point+e.yxx);
+  normal.y = sampleTerrain(point-e.xyx) - sampleTerrain(point+e.xyx);
+  normal.z = sampleTerrain(point-e.xxy) - sampleTerrain(point+e.xxy);
+  return normalize(normal / e.y);
+}
