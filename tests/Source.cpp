@@ -175,43 +175,43 @@ int main()
         RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, std::numeric_limits<double>::infinity(), glm::mat3(std::numeric_limits<double>::infinity()), 0.4),
         MeshArray({ cubeMesh })
     );
-    rigidBodies[1] = Entity::AddEntity(
-        Transform({ 10.25,0,10.26 }, { 0.5,10,10 }),
-        Collider({ 0.5,10,10 }),
-        RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, std::numeric_limits<double>::infinity(), glm::mat3(std::numeric_limits<double>::infinity())),
-        MeshArray({ cubeMesh })
-    );
-    rigidBodies[2] = Entity::AddEntity(
-        Transform({ -10.25,0,10.26 }, { 0.5,10,10 }),
-        Collider({ 0.5,10,10 }),
-        RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, std::numeric_limits<double>::infinity(), glm::dmat3(std::numeric_limits<double>::infinity())),
-        MeshArray({ cubeMesh })
-    );
-    rigidBodies[3] = Entity::AddEntity(
-        Transform({ 0,10.25,10.26 }, { 10,0.5,10 }),
-        Collider({ 10,0.5,10 }),
-        RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, std::numeric_limits<double>::infinity(), glm::dmat3(std::numeric_limits<double>::infinity())),
-        MeshArray({ cubeMesh })
-    );
-    rigidBodies[4] = Entity::AddEntity(
-        Transform({ 0,-10.25,10.26 }, { 10,0.5,10 }),
-        Collider({ 10,0.5,10 }),
-        RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, std::numeric_limits<double>::infinity(), glm::dmat3(std::numeric_limits<double>::infinity())),
-        MeshArray({ cubeMesh })
-    );
-
-    rigidBodies[5] = Entity::AddEntity(
-        Transform({ 0, 0, 3.5 }, { 2,2,1 }),
-        Collider({ 2,2,1 }),
-        RigidBody({ 8,0,10 }, { 0,0,0 }, { 0,0,0 }, 4.0 * 4.0 * 2.0, glm::dmat3(1.0 / 12.0 * (4 * 4 + 2 * 2), 0, 0, 0, 1.0 / 12.0 * (4 * 4 + 2 * 2), 0, 0, 0, 1.0 / 12.0 * (4 * 4 + 4 * 4)), 0.35),
-        MeshArray({ cubeMesh })
-    );
     // rigidBodies[1] = Entity::AddEntity(
-    //     Transform({ 0, 0, 0 }, { 1,1,1 }),
-    //     Collider({ 1,1,1 }),
-    //     RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, 1, glm::dmat3(1.0 / 6.0 * 2 * 2), 0.0, 0.2, 0.3),
+    //     Transform({ 10.25,0,10.26 }, { 0.5,10,10 }),
+    //     Collider({ 0.5,10,10 }),
+    //     RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, std::numeric_limits<double>::infinity(), glm::mat3(std::numeric_limits<double>::infinity())),
     //     MeshArray({ cubeMesh })
     // );
+    // rigidBodies[2] = Entity::AddEntity(
+    //     Transform({ -10.25,0,10.26 }, { 0.5,10,10 }),
+    //     Collider({ 0.5,10,10 }),
+    //     RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, std::numeric_limits<double>::infinity(), glm::dmat3(std::numeric_limits<double>::infinity())),
+    //     MeshArray({ cubeMesh })
+    // );
+    // rigidBodies[3] = Entity::AddEntity(
+    //     Transform({ 0,10.25,10.26 }, { 10,0.5,10 }),
+    //     Collider({ 10,0.5,10 }),
+    //     RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, std::numeric_limits<double>::infinity(), glm::dmat3(std::numeric_limits<double>::infinity())),
+    //     MeshArray({ cubeMesh })
+    // );
+    // rigidBodies[4] = Entity::AddEntity(
+    //     Transform({ 0,-10.25,10.26 }, { 10,0.5,10 }),
+    //     Collider({ 10,0.5,10 }),
+    //     RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, std::numeric_limits<double>::infinity(), glm::dmat3(std::numeric_limits<double>::infinity())),
+    //     MeshArray({ cubeMesh })
+    // );
+
+    // rigidBodies[5] = Entity::AddEntity(
+    //     Transform({ 0, 0, 3.5 }, { 2,2,1 }),
+    //     Collider({ 2,2,1 }),
+    //     RigidBody({ 8,0,10 }, { 0,0,0 }, { 0,0,0 }, 4.0 * 4.0 * 2.0, glm::dmat3(1.0 / 12.0 * (4 * 4 + 2 * 2), 0, 0, 0, 1.0 / 12.0 * (4 * 4 + 2 * 2), 0, 0, 0, 1.0 / 12.0 * (4 * 4 + 4 * 4)), 0.35),
+    //     MeshArray({ cubeMesh })
+    // );
+    rigidBodies[1] = Entity::AddEntity(
+        Transform({ 0, 0, 0 }, { 1,1,1 }),
+        Collider({ 1,1,1 }),
+        RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, 1, glm::dmat3(1.0 / 6.0 * 2 * 2), 0.0, 0.2, 0.3),
+        MeshArray({ cubeMesh })
+    );
 
     Transform cameraTransform({ 0.5,-2.5,0.5 });
     static float fov = 70;
@@ -291,50 +291,54 @@ int main()
                 rigidBodies[0].GetComponent<Transform>().position -= glm::dvec3{ 0,1,0 } *speed;
         }
 
+        auto p = ColliderManager::GetPenetrations();
         if (glfwGetKey(window, GLFW_KEY_ENTER))
         {
-            if (!enterPressed || !glfwGetKey(window, GLFW_KEY_LEFT_SHIFT))
+            if (!enterPressed || !glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || true)
             {
-                Physics::Update(1 / 64.0, 16);
-                if (frameCount % 250 == 249 && rbs != 30)
+                for (int k = 0; k < 4; k++)
                 {
-                    int type = rand() % 2;
-                    dvec3 pos;
-                    pos.x = rand() / double(RAND_MAX) * 7 - 3.5;
-                    pos.y = rand() / double(RAND_MAX) * 7 - 3.5;
-                    pos.z = 25;
-                    dvec3 scale;
-                    scale.x = rand() / double(RAND_MAX) + 1.75;
-                    scale.y = rand() / double(RAND_MAX) + 1.75;
-                    scale.z = rand() / double(RAND_MAX) + 1.75;
-                    dvec3 velocity;
-                    velocity.x = rand() / double(RAND_MAX) * 7 - 3.5;
-                    velocity.y = rand() / double(RAND_MAX) * 7 - 3.5;
-                    velocity.z = rand() / double(RAND_MAX) * 7 - 3.5;
-                    if (type == 0)
+                    Physics::Update(1 / 64.0, 16);
+                    if (frameCount % 100 == 99 && rbs != 30)
                     {
-                        double mass = 4.0 / 3.0 * glm::pi<double>() * scale.x * scale.x * 0.2;
-                        rigidBodies[rbs] = Entity::AddEntity(
-                            Transform(pos, { scale.x,scale.x,scale.x }),
-                            Collider({ scale.x }),
-                            RigidBody(velocity, { 0,0,0 }, { 0,0,0 }, mass, glm::dmat3(2.0 / 5.0), 0.35),
-                            MeshArray({ sphereMesh })
-                        );
-                    }
-                    else
-                    {
-                        double mass = scale.x * 2.0 * scale.y * 2.0 * scale.z * 2.0;
-                        rigidBodies[rbs] = Entity::AddEntity(
-                            Transform(pos, scale),
-                            Collider(scale),
-                            RigidBody(velocity, { 0,0,0 }, { 0,0,0 }, mass, glm::dmat3(1.0 / 12.0 * (pow(scale.x * 2.0, 2.0) + pow(scale.z * 2.0, 2.0)), 0, 0, 0, 1.0 / 12.0 * (pow(scale.y * 2.0, 2.0) + pow(scale.z * 2.0, 2.0)), 0, 0, 0, 1.0 / 12.0 * (pow(scale.x * 2.0, 2.0) + pow(scale.y * 2.0, 2.0))), 0.35),
-                            MeshArray({ cubeMesh })
-                        );
-                    }
+                        int type = rand() % 2;
+                        dvec3 pos;
+                        pos.x = rand() / double(RAND_MAX) * 7 - 3.5;
+                        pos.y = rand() / double(RAND_MAX) * 7 - 3.5;
+                        pos.z = 25;
+                        dvec3 scale;
+                        scale.x = rand() / double(RAND_MAX) + 1.75;
+                        scale.y = rand() / double(RAND_MAX) + 1.75;
+                        scale.z = rand() / double(RAND_MAX) + 1.75;
+                        dvec3 velocity;
+                        velocity.x = rand() / double(RAND_MAX) * 7 - 3.5;
+                        velocity.y = rand() / double(RAND_MAX) * 7 - 3.5;
+                        velocity.z = rand() / double(RAND_MAX) * 7 - 3.5;
+                        if (type == 0)
+                        {
+                            double mass = 4.0 / 3.0 * glm::pi<double>() * scale.x * scale.x * 0.2;
+                            rigidBodies[rbs] = Entity::AddEntity(
+                                Transform(pos, { scale.x,scale.x,scale.x }),
+                                Collider({ scale.x }),
+                                RigidBody(velocity, { 0,0,0 }, { 0,0,0 }, mass, glm::dmat3(2.0 / 5.0), 0.35),
+                                MeshArray({ sphereMesh })
+                            );
+                        }
+                        else
+                        {
+                            double mass = scale.x * 2.0 * scale.y * 2.0 * scale.z * 2.0;
+                            rigidBodies[rbs] = Entity::AddEntity(
+                                Transform(pos, scale),
+                                Collider(scale),
+                                RigidBody(velocity, { 0,0,0 }, { 0,0,0 }, mass, glm::dmat3(1.0 / 12.0 * (pow(scale.x * 2.0, 2.0) + pow(scale.z * 2.0, 2.0)), 0, 0, 0, 1.0 / 12.0 * (pow(scale.y * 2.0, 2.0) + pow(scale.z * 2.0, 2.0)), 0, 0, 0, 1.0 / 12.0 * (pow(scale.x * 2.0, 2.0) + pow(scale.y * 2.0, 2.0))), 0.35),
+                                MeshArray({ cubeMesh })
+                            );
+                        }
 
-                    rbs++;
+                        rbs++;
+                    }
+                    frameCount++;
                 }
-                frameCount++;
                 // std::cout << frameCount * 1 << "\n";
             }
             enterPressed = true;

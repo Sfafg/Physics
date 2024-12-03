@@ -21,6 +21,7 @@ set(SRC
     ${SRC_ROOT}/Renderer.cpp
     ${SRC_ROOT}/Components.cpp
     ${SRC_ROOT}/ColliderManager.cpp
+    ${SRC_ROOT}/Constraints.cpp
 )
 
 set(SHADERS

@@ -34,10 +34,45 @@ MeshArray::MeshArray(std::vector<Mesh>&& meshes) : meshes(meshes) {}
 
 Collider::Collider() {}
 
-Collider::Collider(double radius) :type(Type::Sphere), radius(radius), boundingSphereRadius(radius) {}
+Collider::Collider(double radius) :type(Type::Sphere), radius(radius), boundingSphereRadius(GetBoundingSphereRadius()) {}
 
-Collider::Collider(const glm::dvec3& boxSize) :type(Type::Box), size(boxSize), boundingSphereRadius(std::max({ boxSize.x, boxSize.y, boxSize.z })* sqrt(2)) {}
+Collider::Collider(const glm::dvec3& boxSize) :type(Type::Box), size(boxSize), boundingSphereRadius(GetBoundingSphereRadius()) {}
 
+glm::dvec3 Collider::SupportMapping(glm::dvec3 direction) const
+{
+    auto& transform = GetComponent<Transform>();
+    direction = glm::inverse(transform.rotation) * direction;
+    return transform.rotation * LocalSupportMapping(direction) + transform.position;
+}
+
+double Collider::GetBoundingSphereRadius() const
+{
+    switch (type)
+    {
+    case Collider::Type::Sphere:
+        return radius;
+
+    case Collider::Type::Box:
+        return sqrt(size.x * size.x + size.y * size.y + size.z * size.z);
+
+    default:
+        return -1;
+    }
+}
+glm::dvec3 Collider::LocalSupportMapping(glm::dvec3 direction) const
+{
+    switch (type)
+    {
+    case Collider::Type::Sphere:
+        return glm::normalize(direction) * radius;
+
+    case Collider::Type::Box:
+        return glm::dvec3{ direction.x > 0 ? 1 : -1, direction.y > 0 ? 1 : -1, direction.z > 0 ? 1 : -1 } *size;
+
+    default:
+        return { 0, 0, 0 };
+    }
+}
 
 glm::dmat3 GetInertiaTensor(glm::dvec3 scale, Collider::Type type)
 {

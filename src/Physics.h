@@ -17,9 +17,9 @@ public:
     {
         double subDeltaT = deltaT / subStepCount;
 
-        std::vector<std::vector<Collider*>> possibleColliders;
+        std::unordered_set<CollisionPair, CollisionPair::Hash> possibleColliders;
         for (auto&& i : components)
-            possibleColliders.push_back(ColliderManager::QuerryInRadius(i.GetComponent<Transform>().position, i.GetComponent<Collider>().boundingSphereRadius * glm::length(i.velocity) * deltaT * 2));
+            ColliderManager::QuerryInRadius(i.GetComponent<Collider>(), 1 + glm::length(i.velocity) * deltaT * 2, &possibleColliders);
 
         for (int i = 0; i < subStepCount; i++)
         {
@@ -30,12 +30,12 @@ public:
                 components[j].Integrate(subDeltaT);
             }
 
-            std::vector<PenetrationConstraint> penetrations;// = ColliderManager::GetPenetrations();
-            for (int j = 0; j < components.size(); j++)
+            std::vector<PenetrationConstraint> penetrations;//= ColliderManager::GetPenetrations();
+            for (auto&& j : possibleColliders)
             {
-                auto&& t = ColliderManager::GetPenetrations(&components[j].GetComponent<Collider>(), possibleColliders[j]);
-                for (auto&& i : t)
-                    penetrations.push_back(std::move(i));
+                PenetrationConstraint t;
+                if (ColliderManager::GetPenetration(*j.a, *j.b, &t))
+                    penetrations.emplace_back(std::move(t));
             }
 
             // Position Solve.

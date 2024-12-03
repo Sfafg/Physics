@@ -45,14 +45,25 @@ struct Collider : public ECS::Component<Collider>
     };
     double boundingSphereRadius;
 
-
     Collider();
     Collider(double radius);
     Collider(const glm::dvec3& boxSize);
+
+    glm::dvec3 SupportMapping(glm::dvec3 direction) const;
+
+private:
+    double GetBoundingSphereRadius() const;
+    glm::dvec3 LocalSupportMapping(glm::dvec3 direction) const;
 };
 
 struct RigidBody : public ECS::Component<RigidBody>
 {
+    double mass;
+    double inverseMass;
+    double restitutionCoefficient;
+    double staticFrictionCoefficient;
+    double dynamicFrictionCoefficient;
+
     glm::dvec3 velocity;
     glm::dvec3 angularVelocity;
     glm::dvec3 centerOfMass;
@@ -64,12 +75,6 @@ struct RigidBody : public ECS::Component<RigidBody>
 
     glm::dmat3 inertiaTensor;
     glm::dmat3 inverseInertiaTensor;
-
-    double mass;
-    double inverseMass;
-    double restitutionCoefficient;
-    double staticFrictionCoefficient;
-    double dynamicFrictionCoefficient;
 
     RigidBody();
     RigidBody(const glm::dvec3& velocity, const glm::dvec3& angularVelocity, const glm::dvec3& centerOfMass, double mass, const glm::dmat3& inertiaTensor, double restitutionCoefficient = 1.0, double staticFrictionCoefficient = 0.9, double dynamicFrictionCoefficient = 0.68);
