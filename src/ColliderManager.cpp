@@ -1,7 +1,7 @@
 #include "ColliderManager.h"
-#include "DebugDraw.h"
 #include <math.h>
 #include <unordered_set>
+
 
 bool IsVectorZero(dvec3 v, double e)
 {
@@ -9,77 +9,16 @@ bool IsVectorZero(dvec3 v, double e)
     return v.x < e && v.y < e && v.z < e;
 }
 
-void DrawSimplex(Support* simplex, int count)
-{
-    DebugDraw::color.a = 0.01;
-    DebugDraw::Triangle((dvec3) simplex[1], (dvec3) simplex[0], (dvec3) simplex[2]);
-    DebugDraw::Triangle((dvec3) simplex[0], (dvec3) simplex[1], (dvec3) simplex[3]);
-    DebugDraw::Triangle((dvec3) simplex[2], (dvec3) simplex[0], (dvec3) simplex[3]);
-    DebugDraw::Triangle((dvec3) simplex[1], (dvec3) simplex[2], (dvec3) simplex[3]);
-
-    DebugDraw::color.a = 1;
-    DebugDraw::Line((dvec3) simplex[0], (dvec3) simplex[1], 0.001);
-    DebugDraw::Line((dvec3) simplex[0], (dvec3) simplex[2], 0.001);
-    DebugDraw::Line((dvec3) simplex[1], (dvec3) simplex[2], 0.001);
-    DebugDraw::Line((dvec3) simplex[0], (dvec3) simplex[3], 0.001);
-    DebugDraw::Line((dvec3) simplex[1], (dvec3) simplex[3], 0.001);
-    DebugDraw::Line((dvec3) simplex[2], (dvec3) simplex[3], 0.001);
-}
-
-void DrawSupportDifferance(const Collider& a, const Collider& b)
-{
-    const int resolution = 16;
-    const float PI = 3.14159265359f;
-
-    static std::vector<Entity> entities;
-    if (entities.size() != (resolution + 1) * (resolution * 2))
-    {
-        entities.resize((resolution + 1) * (resolution * 2));
-        for (int i = 0; i < entities.size(); i++)
-        {
-            entities[i] = Entity::AddEntity(
-                Transform({ 0,0,0 }),
-                MeshArray({ DebugDraw::sphereMesh })
-            );
-        }
-    }
-
-    for (int inclination = 0; inclination <= resolution; inclination++)
-    {
-        for (int azimuth = 0; azimuth < resolution * 2; azimuth++)
-        {
-            float alfa = inclination / (float) resolution * PI;
-            float beta = azimuth / (float) resolution * PI;
-
-            glm::vec3 dir;
-            dir.x = sin(alfa) * cos(beta);
-            dir.y = sin(alfa) * sin(beta);
-            dir.z = cos(alfa);
-
-            glm::vec3 point = b.SupportMapping(dir) - a.SupportMapping(-dir);
-            int i = inclination * resolution * 2 + azimuth;
-            entities[i].GetComponent<Transform>().position = point;
-            entities[i].GetComponent<Transform>().scale = { 0.01f ,0.01f ,0.01f };
-        }
-    }
-}
-
 bool ColliderManager::GJK(const Collider& a, const Collider& b, Support* simplex)
 {
     // Wyznacz p1 punkt który na pewno jest wewnątrz różnicy minkowskiego, jest to np różnica środków obiektów.
     dvec3 n = { 0,0,1 };
     simplex[0] = Support(a.GetComponent<Transform>().position, b.GetComponent<Transform>().position);
-    // DebugDraw::color = { 0,0,1,1 };
-    // DebugDraw::Sphere({ 0,0,0 }, 0.03);
-    // DebugDraw::color = { 1,0,0,1 };
-    // DebugDraw::Sphere((dvec3) simplex[0], 0.03);
 
     // Znjadź p2 na różnicy minkowskiego w kierunku punktu (0,0) z punktu p1.
     if (!IsVectorZero(simplex[0], 0.000000001))
         n = glm::normalize(-(dvec3) simplex[0]);
     simplex[1] = Support(a, b, n);
-    // DebugDraw::Ray((dvec3) simplex[0], n, 0.03);
-    // DebugDraw::Sphere((dvec3) simplex[1], 0.03);
 
     // Jeżeli p2 nie jest za punktem (0,0) to znaczy że nie ma kolizji.
     double dotProduct = glm::dot((dvec3) simplex[1], n);
@@ -97,8 +36,6 @@ bool ColliderManager::GJK(const Collider& a, const Collider& b, Support* simplex
         n = glm::normalize(glm::cross(-(dvec3) simplex[0], -(dvec3) simplex[1] + dvec3{ ((dvec3) simplex[1]).y,  ((dvec3) simplex[1]).z,  ((dvec3) simplex[1]).x }));
         simplex[2] = Support(a, b, n);
     }
-    // DebugDraw::Ray((dvec3) simplex[1], n, 0.03);
-    // DebugDraw::Sphere((dvec3) simplex[2], 0.03);
 
     // Jeżeli p3 nie jest za punktem (0,0) to znaczy że nie ma kolizji.
     dotProduct = glm::dot((dvec3) simplex[2], n);
@@ -116,8 +53,6 @@ bool ColliderManager::GJK(const Collider& a, const Collider& b, Support* simplex
     n = glm::normalize(n);
     simplex[3] = Support(a, b, n);
     dotProduct = glm::dot((dvec3) simplex[3], n);
-    // DebugDraw::Ray(((dvec3) simplex[0] + (dvec3) simplex[1] + (dvec3) simplex[2]) / 3.0, n, 0.03);
-    // DebugDraw::Sphere((dvec3) simplex[3], 0.03);
 
     // Jeżeli p4 nie jest za punktem (0,0) to nie ma kolizji, natomiast jeżeli jest za to jest kolizja.
     if (dotProduct <= 0)
@@ -151,13 +86,6 @@ bool ColliderManager::GJK(const Collider& a, const Collider& b, Support* simplex
                 simplex[unusedIndex] = Support(a, b, n);
 
                 lastCorrectedPoint = unusedIndex;
-                // DebugDraw::color = { 0,0,1,1 };
-                // DebugDraw::Sphere({ 0,0,0 }, 0.02);
-                // DebugDraw::color = { 1,0,0,1 };
-                // DebugDraw::Ray(((dvec3) simplex[secondIndex] + (dvec3) simplex[baseIndex] + (dvec3) simplex[thirdIndex]) / 3.0, n, 0.0075);
-                // DebugDraw::Sphere((dvec3) simplex[unusedIndex], 0.03);
-                // DebugDraw::color = glm::vec4{ 1.0, 1.0, 0.0, 1.0 };
-                // DebugDraw::matrix = glm::translate(DebugDraw::matrix, { 0,0,2 });
                 if (glm::dot(n, (dvec3) simplex[unusedIndex]) < 0)
                     return false;
 
@@ -166,15 +94,8 @@ bool ColliderManager::GJK(const Collider& a, const Collider& b, Support* simplex
             }
         }
         if (j == 3)
-        {
-            // DebugDraw::matrix = glm::translate(DebugDraw::matrix, { 0,0,2 });
-            // DebugDraw::color = { 1,0,0,1 };
-            // DrawSimplex(simplex, 4);
             return true;
-        }
     }
-    DebugDraw::color = { 0,0,1,1 };
-    DrawSimplex(simplex, 4);
 
     return false;
 }
@@ -193,6 +114,9 @@ struct EPATriangle
         dvec3 c = polytope[indices[2]];
         dvec3 u = a - b;
         dvec3 v = a - c;
+
+        if (IsVectorZero(u, 0.000000001))
+            u = dvec3(0.0000001, 0.0, 0.0);
 
         normal = glm::cross(u, v);
         if (IsVectorZero(normal, 0.000000001))
@@ -213,9 +137,20 @@ struct EPATriangle
         dvec3 r2 = polytope[indices[1]];
         dvec3 r3 = polytope[indices[2]];
 
+        double t = glm::dot(glm::cross(r1 - r3, r2 - r3), normal);
+
         dvec3 barycentricCoordinates;
-        barycentricCoordinates.x = glm::dot(glm::cross(p - r3, r2 - r3), normal) / glm::dot(glm::cross(r1 - r3, r2 - r3), normal);
-        barycentricCoordinates.y = glm::dot(glm::cross(p - r3, r3 - r1), normal) / glm::dot(glm::cross(r1 - r3, r2 - r3), normal);
+        if (-std::numeric_limits<double>::epsilon() <= t && t <= std::numeric_limits<double>::epsilon())
+        {
+            barycentricCoordinates.x = 0;
+            barycentricCoordinates.y = 0;
+        }
+        else
+        {
+            barycentricCoordinates.x = glm::dot(glm::cross(p - r3, r2 - r3), normal) / t;
+            barycentricCoordinates.y = glm::dot(glm::cross(p - r3, r3 - r1), normal) / t;
+        }
+
         barycentricCoordinates.z = 1 - barycentricCoordinates.x - barycentricCoordinates.y;
 
         return barycentricCoordinates;
@@ -232,8 +167,6 @@ void ColliderManager::EPA(const Collider& a, const Collider& b, std::vector<Supp
     triangles.push_back(EPATriangle(polytope.data(), { 2, 0, 3 }));
     triangles.push_back(EPATriangle(polytope.data(), { 3, 1, 2 }));
 
-    // DebugDraw::matrix = glm::mat4(1);
-    // static int count = -1;
     EPATriangle* closestTriangle = nullptr;
     for (int i = 0; i < 64; i++)
     {
@@ -243,38 +176,6 @@ void ColliderManager::EPA(const Collider& a, const Collider& b, std::vector<Supp
         // Jeżeli jest dostatecznie blisko akutalnego punktu,
         // to przyjmujemy, że jest na powieszchni orginalnego krztałtu i kończymi pętle.
         Support newSupport = Support(a, b, closestTriangle->normal);
-
-        // DebugDraw::color = { 0,0,1,1 };
-        // if (count == 0)
-        //     DebugDraw::Sphere({ 0,0,0 }, 0.011, 1000);
-        // for (auto&& k : triangles)
-        // {
-        //     if (count == 0)
-        //     {
-        //         if (&k == closestTriangle)
-        //             continue;
-        //         DebugDraw::color = { 1,1,0,0.04 };
-        //         DebugDraw::Triangle(polytope[k.indices[0]], polytope[k.indices[1]], polytope[k.indices[2]], 1000);
-        //         DebugDraw::color.a = 1;
-        //         DebugDraw::Line(polytope[k.indices[0]], polytope[k.indices[1]], 0.001, 1000);
-        //         DebugDraw::Line(polytope[k.indices[0]], polytope[k.indices[2]], 0.001, 1000);
-        //         DebugDraw::Line(polytope[k.indices[1]], polytope[k.indices[2]], 0.001, 1000);
-        //         // DebugDraw::Ray((polytope[k.indices[0]] + polytope[k.indices[1]] + polytope[k.indices[2]]) / 3.0, k.normal * k.distance, 0.001, 1000);
-        //     }
-        // }
-        // if (count == 0)
-        // {
-        //     DebugDraw::color = { 1,0,0,0.04 };
-        //     DebugDraw::Triangle(polytope[closestTriangle->indices[0]], polytope[closestTriangle->indices[1]], polytope[closestTriangle->indices[2]], 1000);
-        //     DebugDraw::color.a = 1;
-        //     DebugDraw::Sphere(newSupport, 0.01, 1000);
-        //     DebugDraw::Line(polytope[closestTriangle->indices[0]], polytope[closestTriangle->indices[1]], 0.0011, 1000);
-        //     DebugDraw::Line(polytope[closestTriangle->indices[0]], polytope[closestTriangle->indices[2]], 0.0011, 1000);
-        //     DebugDraw::Line(polytope[closestTriangle->indices[1]], polytope[closestTriangle->indices[2]], 0.0011, 1000);
-        //     // DebugDraw::Ray((polytope[closestTriangle->indices[0]] + polytope[closestTriangle->indices[1]] + polytope[closestTriangle->indices[2]]) / 3.0, closestTriangle->normal * closestTriangle->distance, 0.0011, 1000);
-        // }
-        // DebugDraw::matrix = glm::translate(DebugDraw::matrix, { 0,0,2 });
-
         double newDistance = glm::dot(closestTriangle->normal, (dvec3) newSupport);
         if (newDistance - closestTriangle->distance <= 0.00001)
             break;
@@ -308,9 +209,6 @@ void ColliderManager::EPA(const Collider& a, const Collider& b, std::vector<Supp
         for (auto [edge1, edge2] : uniqueEdges)
             triangles.push_back(EPATriangle(polytope.data(), { edge1,edge2,short(polytope.size() - 1) }));
     }
-    // count++;
-    // if (count == 1000)
-    //     count = 0;
 
     if (closestTriangle)
     {
@@ -319,7 +217,6 @@ void ColliderManager::EPA(const Collider& a, const Collider& b, std::vector<Supp
 
         dvec3 p = closestTriangle->distance * closestTriangle->normal;
         dvec3 barycentricCoordinates = closestTriangle->GetBarycentricCoordinates(polytope.data(), p);
-
         *p1 =
             barycentricCoordinates.x * polytope[closestTriangle->indices[0]].GetA() +
             barycentricCoordinates.y * polytope[closestTriangle->indices[1]].GetA() +
@@ -373,8 +270,6 @@ bool ColliderManager::GetPenetration(const Collider& a, const Collider& b, Penet
         polytope.assign(&simplex[0], &simplex[0] + 4);
         EPA(a, b, polytope, &normal, &depth, &p1, &p2);
 
-        // auto [p1, p2] = Clipping(a, b, normal, depth);
-
         p1 = dquat(glm::inverse(aTr.rotation)) * (p1 - dvec3(aTr.position));
         p2 = dquat(glm::inverse(bTr.rotation)) * (p2 - dvec3(bTr.position));
 
@@ -420,7 +315,7 @@ std::vector<PenetrationConstraint> ColliderManager::GetPenetrations(Collider* co
     return penetrations;
 }
 
-void ColliderManager::QuerryInRadius(Collider& a, double radiusMultiplier, std::unordered_set<CollisionPair, CollisionPair::Hash>* pairs)
+void ColliderManager::QuarryInRadius(Collider& a, double radiusMultiplier, std::unordered_set<CollisionPair, CollisionPair::Hash>* pairs)
 {
     double radius = a.boundingSphereRadius * radiusMultiplier;
     dvec3 position = a.GetComponent<Transform>().position;

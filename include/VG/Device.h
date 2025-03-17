@@ -69,6 +69,7 @@ namespace vg
         DeviceProperties GetProperties() const;
         DeviceFeatures GetFeatures() const;
         FormatProperties GetFormatProperties(Format format) const;
+        const Queue& GetQueue(uint32_t queueIndex) const;
 
 
     private:

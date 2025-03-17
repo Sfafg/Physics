@@ -29,8 +29,6 @@ glm::dvec3 Transform::Right() const
     return v;
 }
 
-MeshArray::MeshArray(std::vector<Mesh>&& meshes) : meshes(meshes) {}
-
 
 Collider::Collider() {}
 

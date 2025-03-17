@@ -62,7 +62,10 @@ namespace ECS
 
 #pragma region Entity
     template<ComponentDerived... TComponents>
-    std::set<EntityTemplate<TComponents...>*> EntityTemplate<TComponents...>::entityReferances;
+    std::unordered_set<EntityTemplate<TComponents...>*> EntityTemplate<TComponents...>::entityReferances;
+
+    template<ComponentDerived... TComponents>
+    std::unordered_map<int, int> EntityTemplate<TComponents...>::referenceCount;
 
     template<ComponentDerived... TComponents>
     std::vector<ComponentTable<TComponents...>> EntityTemplate<TComponents...>::entities;
@@ -72,7 +75,10 @@ namespace ECS
     {
         assert(("Invalid Index", index == -1 || index < entities.size()));
         if (index != -1)
+        {
             entityReferances.insert(this);
+            referenceCount[index] += 1;
+        }
     }
 
     template<ComponentDerived... TComponents>
@@ -81,6 +87,7 @@ namespace ECS
         index = other.index;
         entityReferances.erase(&other);
         entityReferances.insert(this);
+        referenceCount[index] += 1;
     }
 
     template<ComponentDerived... TComponents>
@@ -88,6 +95,7 @@ namespace ECS
     {
         index = other.index;
         entityReferances.insert(this);
+        referenceCount[index] += 1;
     }
 
     template<ComponentDerived... TComponents>
@@ -98,6 +106,7 @@ namespace ECS
         index = other.index;
         entityReferances.erase(&other);
         entityReferances.insert(this);
+        referenceCount[index] += 1;
 
         return *this;
     }
@@ -108,6 +117,7 @@ namespace ECS
 
         index = other.index;
         entityReferances.insert(this);
+        referenceCount[index] += 1;
 
         return *this;
     }
@@ -120,6 +130,7 @@ namespace ECS
         entity.index = entities.size();
         entities.resize(entities.size() + 1);
         entityReferances.insert(&entity);
+        referenceCount[entity.index] = 1;
 
         (entity.template AddComponent<UComponents>(std::move(components)), ...);
 
@@ -210,9 +221,10 @@ namespace ECS
     EntityTemplate<TComponents...> ::~EntityTemplate()
     {
         if (!entityReferances.contains(this))return;
-        for (auto&& referance : entityReferances)
-            if (referance != this && referance->index == index)
-                return;
+
+        referenceCount[index] -= 1;
+        if (referenceCount[index] != 0)
+            return;
 
         Destroy();
         entityReferances.erase(this);
@@ -235,35 +247,35 @@ namespace ECS
     template <ComponentDerived UComponent, typename TEntity>
     bool Component<TComponent>::HasComponent() const
     {
-        return GetEntity<TEntity>().template HasComponent<UComponent>();
+        return TEntity::entities[entityIndex].template HasComponent<UComponent>();
     }
 
     template <typename TComponent>
     template<ComponentDerived UComponent, typename TEntity>
     UComponent& Component<TComponent>::GetComponent() const
     {
-        return GetEntity<TEntity>().template GetComponent<UComponent>();
+        return System<UComponent>::GetComponent(TEntity::entities[entityIndex].template GetIndex<UComponent>());
     }
 
     template <typename TComponent>
     template<ComponentDerived UComponent, typename TEntity>
     UComponent& Component<TComponent>::AddComponent(UComponent&& component)
     {
-        return GetEntity<TEntity>().template AddComponent<UComponent>(std::move(component));
+        return TEntity::entities[entityIndex].template AddComponent<UComponent>(std::move(component));
     }
 
     template <typename TComponent>
     template <ComponentDerived UComponent, typename TEntity>
     void Component<TComponent>::DestroyComponent()
     {
-        GetEntity<TEntity>().template DestroyComponent<UComponent>();
+        TEntity::entities[entityIndex].template DestroyComponent<UComponent>();
     }
 
     template <typename TComponent>
     template<typename TEntity>
     void Component<TComponent>::Destroy()
     {
-        GetEntity<TEntity>().template DestroyComponent<TComponent>();
+        TEntity::entities[entityIndex].template DestroyComponent<TComponent>();
     }
 #pragma endregion
 

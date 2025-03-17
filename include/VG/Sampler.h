@@ -17,6 +17,7 @@ namespace vg
             float mipLodBias = 0,
             float minLod = 0,
             float maxLod = 1000,
+            SamplerReduction samplerReduction = SamplerReduction::WeightedAverage,
             BorderColor borderColor = BorderColor::FloatTransparentBlack,
             bool unnormalizedCoordinates = false);
 
@@ -31,6 +32,7 @@ namespace vg
             float mipLodBias = 0,
             float minLod = 0,
             float maxLod = 1000,
+            SamplerReduction samplerReduction = SamplerReduction::WeightedAverage,
             BorderColor borderColor = BorderColor::FloatTransparentBlack,
             bool unnormalizedCoordinates = false);
 
@@ -45,6 +47,7 @@ namespace vg
             float mipLodBias = 0,
             float minLod = 0,
             float maxLod = 1000,
+            SamplerReduction samplerReduction = SamplerReduction::WeightedAverage,
             BorderColor borderColor = BorderColor::FloatTransparentBlack,
             bool unnormalizedCoordinates = false);
 
@@ -60,6 +63,7 @@ namespace vg
             float mipLodBias = 0,
             float minLod = 0,
             float maxLod = 1000,
+            SamplerReduction samplerReduction = SamplerReduction::WeightedAverage,
             BorderColor borderColor = BorderColor::FloatTransparentBlack,
             bool unnormalizedCoordinates = false);
 

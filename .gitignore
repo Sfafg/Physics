@@ -1,2 +1,5 @@
-/.vscode
-/build
+.vscode
+build
+.cache
+doc
+compile_commands.json

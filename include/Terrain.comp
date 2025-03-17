@@ -1,7 +1,0 @@
-#include "Noises.comp"
-
-float sampleTerrain(vec3 p)
-{
-  float height = length(p);
-  return Perlin(p * 1)*10 + Perlin(p * 10) + height - 50; 
-}

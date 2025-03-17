@@ -14,8 +14,7 @@ namespace vg
     class CmdBuffer;
     namespace cmd
     {
-        struct Command {};
-        struct BindPipeline : Command
+        struct BindPipeline
         {
             BindPipeline(GraphicsPipelineHandle pipeline) : pipeline(pipeline), bindPoint(PipelineBindPoint::Graphics) {}
             BindPipeline(ComputePipelineHandle computePipeline) : pipeline(*(GraphicsPipelineHandle*) &computePipeline), bindPoint(PipelineBindPoint::Compute) {}
@@ -27,7 +26,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct BindVertexBuffers : Command
+        struct BindVertexBuffers
         {
             BindVertexBuffers(const std::vector<Buffer>& buffers, std::vector<uint64_t> offset = {}, uint32_t firstBinding = 0) :buffers(buffers.size()), offset(offset), firstBinding(firstBinding)
             {
@@ -54,7 +53,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct BindIndexBuffer : Command
+        struct BindIndexBuffer
         {
             BindIndexBuffer(BufferHandle buffer, uint64_t offset, IndexType type) :buffer(buffer), offset(offset), type(type) {}
 
@@ -66,7 +65,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct BindDescriptorSets : Command
+        struct BindDescriptorSets
         {
             BindDescriptorSets(PipelineLayoutHandle layout, PipelineBindPoint bindPoint, uint32_t firstSet, std::vector<DescriptorSetHandle> descriptorSets) :layout(layout), bindPoint(bindPoint), firstSet(firstSet), descriptorSets(descriptorSets) {}
 
@@ -79,7 +78,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct BeginRenderpass : Command
+        struct BeginRenderpass
         {
             BeginRenderpass(const RenderPass& renderpass, const Framebuffer& framebuffer, Point2D<int32_t> offset, Point2D<uint32_t> extend, const std::vector<ClearValue>& clearValues, SubpassContents subpassContents)
                 : renderpass(renderpass), framebuffer(framebuffer), offset(offset), extend(extend), clearValues(clearValues), subpassContents(subpassContents)
@@ -96,7 +95,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct SetViewport : Command
+        struct SetViewport
         {
             SetViewport(const Viewport& viewport) : viewports{ viewport }, first(0) {}
             SetViewport(const std::vector<Viewport>& vieports, int first = 0) : viewports(vieports), first(first) {}
@@ -108,7 +107,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct SetScissor : Command
+        struct SetScissor
         {
             SetScissor(const Scissor& scissor) : scissors{ scissor }, first(0) {}
             SetScissor(const std::vector<Scissor>& vieports, int first = 0) : scissors(vieports), first(first) {}
@@ -120,7 +119,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct Draw : Command
+        struct Draw
         {
             Draw(int vertexCount, int instanceCount = 1, int firstVertex = 0, int firstInstance = 0)
                 :vertexCount(vertexCount), instanceCount(instanceCount), firstVertex(firstVertex), firstInstance(firstInstance)
@@ -136,7 +135,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct EndRenderpass : Command
+        struct EndRenderpass
         {
             EndRenderpass() {}
 
@@ -144,7 +143,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct DrawIndexed : Command
+        struct DrawIndexed
         {
             DrawIndexed(uint32_t indexCount, uint32_t instanceCount = 1, uint32_t firstIndex = 0, uint32_t vertexOffset = 0, uint32_t firstInstance = 0)
                 : indexCount(indexCount), instanceCount(instanceCount), firstIndex(firstIndex), vertexOffset(vertexOffset), firstInstance(firstInstance)
@@ -160,7 +159,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct CopyBuffer : Command
+        struct CopyBuffer
         {
             CopyBuffer(Buffer& src, Buffer& dst, const std::vector<BufferCopyRegion>& regions) : src(src), dst(dst), regions(regions) {}
 
@@ -172,7 +171,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct CopyBufferToImage : Command
+        struct CopyBufferToImage
         {
             CopyBufferToImage(const Buffer& src, const Image& dst, ImageLayout dstImageLayout, std::vector<BufferImageCopy> regions)
                 : src(src), dst(dst), dstImageLayout(dstImageLayout), regions(regions)
@@ -187,7 +186,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct PipelineBarier : Command
+        struct PipelineBarier
         {
             PipelineBarier(Flags<PipelineStage> srcStageMask, Flags<PipelineStage> dstStageMask, Flags<Dependency> dependency, std::vector<MemoryBarrier> memoryBarriers, std::vector<BufferMemoryBarrier> bufferMemoryBarriers = {}, std::vector<ImageMemoryBarrier> imageMemoryBarriers = {})
                 :srcStageMask(srcStageMask), dstStageMask(dstStageMask), dependency(dependency), memoryBarriers(memoryBarriers), bufferMemoryBarriers(bufferMemoryBarriers), imageMemoryBarriers(imageMemoryBarriers)
@@ -224,7 +223,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct ExecuteCommands : Command
+        struct ExecuteCommands
         {
             ExecuteCommands(const std::vector<CmdBufferHandle>& cmdBuffers)
                 : cmdBuffers(cmdBuffers)
@@ -236,7 +235,7 @@ namespace vg
             void operator ()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct PushConstants : Command
+        struct PushConstants
         {
             PushConstants(PipelineLayoutHandle layout, Flags<ShaderStage> stages, uint32_t offset, uint32_t size, void* values)
                 :layout(layout), stages(stages), offset(offset)
@@ -268,7 +267,7 @@ namespace vg
             friend CmdBuffer;
         };
 
-        struct SetLineWidth : Command
+        struct SetLineWidth
         {
             SetLineWidth(float lineWidth) :lineWidth(lineWidth) {}
 
@@ -278,7 +277,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct SetDepthBias : Command
+        struct SetDepthBias
         {
             SetDepthBias(DepthBias bias) : bias(bias) {}
 
@@ -288,7 +287,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct SetBlendConstants : Command
+        struct SetBlendConstants
         {
             SetBlendConstants(float c1, float c2, float c3, float c4) :blendConstants{ c1,c2,c3,c4 } {}
 
@@ -298,7 +297,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct SetDepthBounds : Command
+        struct SetDepthBounds
         {
             SetDepthBounds(float minDepthBounds, float maxDepthBounds) :minDepthBounds(minDepthBounds), maxDepthBounds(maxDepthBounds) {}
 
@@ -309,7 +308,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct SetStencilCompareMask : Command
+        struct SetStencilCompareMask
         {
             SetStencilCompareMask(Flags<StencilFace> faceMask, uint32_t compareMask) :faceMask(faceMask), compareMask(compareMask) {}
 
@@ -320,7 +319,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct SetStencilWriteMask : Command
+        struct SetStencilWriteMask
         {
             SetStencilWriteMask(Flags<StencilFace> faceMask, uint32_t writeMask) :faceMask(faceMask), writeMask(writeMask) {}
 
@@ -331,7 +330,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct SetStencilReference : Command
+        struct SetStencilReference
         {
             SetStencilReference(Flags<StencilFace> faceMask, uint32_t reference) :faceMask(faceMask), reference(reference) {}
 
@@ -342,7 +341,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct DrawIndirect : Command
+        struct DrawIndirect
         {
             DrawIndirect(
                 BufferHandle buffer, uint64_t offset, uint32_t drawCount, uint32_t stride)
@@ -358,7 +357,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct DrawIndexedIndirect : Command
+        struct DrawIndexedIndirect
         {
             DrawIndexedIndirect(BufferHandle buffer, uint64_t offset, uint32_t drawCount, uint32_t stride)
                 :buffer(buffer), offset(offset), drawCount(drawCount), stride(stride)
@@ -373,7 +372,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct Dispatch : Command
+        struct Dispatch
         {
             Dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
                 :groupCountX(groupCountX), groupCountY(groupCountY), groupCountZ(groupCountZ)
@@ -387,7 +386,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct DispatchIndirect : Command
+        struct DispatchIndirect
         {
             DispatchIndirect(BufferHandle buffer, uint64_t offset)
                 :buffer(buffer), offset(offset)
@@ -400,7 +399,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct CopyImage : Command
+        struct CopyImage
         {
             CopyImage(ImageHandle srcImage, ImageLayout srcImageLayout, ImageHandle dstImage, ImageLayout dstImageLayout, const std::vector<ImageCopy>& regions)
                 : srcImage(srcImage), srcImageLayout(srcImageLayout), dstImage(dstImage), dstImageLayout(dstImageLayout), regions(regions)
@@ -416,7 +415,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct BlitImage : Command
+        struct BlitImage
         {
             BlitImage(ImageHandle srcImage, ImageLayout srcImageLayout, ImageHandle dstImage, ImageLayout dstImageLayout, const std::vector<ImageBlit>& regions, Filter filter)
                 :srcImage(srcImage), srcImageLayout(srcImageLayout), dstImage(dstImage), dstImageLayout(dstImageLayout), regions(regions), filter(filter)
@@ -433,7 +432,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct CopyImageToBuffer : Command
+        struct CopyImageToBuffer
         {
             CopyImageToBuffer(ImageHandle srcImage, ImageLayout srcImageLayout, BufferHandle dstBuffer, const std::vector<BufferImageCopy>& regions)
                 :srcImage(srcImage), srcImageLayout(srcImageLayout), dstBuffer(dstBuffer), regions(regions)
@@ -448,7 +447,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct UpdateBuffer : Command
+        struct UpdateBuffer
         {
             UpdateBuffer(BufferHandle dstBuffer, uint64_t dstOffset, uint64_t dataSize, const void* data)
                 :dstBuffer(dstBuffer), dstOffset(dstOffset)
@@ -471,7 +470,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct FillBuffer : Command
+        struct FillBuffer
         {
             FillBuffer(BufferHandle dstBuffer, uint64_t dstOffset, uint64_t size, uint32_t data)
                 :dstBuffer(dstBuffer), dstOffset(dstOffset), size(size), data(data)
@@ -486,7 +485,7 @@ namespace vg
             void operator()(CmdBuffer& commandBuffer) const;
             friend CmdBuffer;
         };
-        struct ClearColorImage : Command
+        struct ClearColorImage
         {
             ClearColorImage(ImageHandle image, ImageLayout imageLayout, ClearValue color, const std::vector<ImageSubresource>& ranges)
                 :image(image), imageLayout(imageLayout), color(color), ranges(ranges)
@@ -502,7 +501,7 @@ namespace vg
             friend CmdBuffer;
         };
 
-        // struct ClearDepthStencilImage : Command
+        // struct ClearDepthStencilImage
         // {
         //     ClearDepthStencilImage() {}
         // private:
@@ -515,7 +514,7 @@ namespace vg
         //     void operator()(CmdBuffer& commandBuffer) const;
         //     friend CmdBuffer;
         // };
-        // struct ClearAttachments : Command
+        // struct ClearAttachments
         // {
         //     ClearAttachments() {}
         // private:
@@ -526,7 +525,7 @@ namespace vg
         //     void operator()(CmdBuffer& commandBuffer) const;
         //     friend CmdBuffer;
         // };
-        // struct ResolveImage : Command
+        // struct ResolveImage
         // {
         //     ResolveImage() {}
         // private:
@@ -539,7 +538,7 @@ namespace vg
         //     void operator()(CmdBuffer& commandBuffer) const;
         //     friend CmdBuffer;
         // };
-        // struct SetEvent : Command
+        // struct SetEvent
         // {
         //     SetEvent() {}
         // private:
@@ -548,7 +547,7 @@ namespace vg
         //     void operator()(CmdBuffer& commandBuffer) const;
         //     friend CmdBuffer;
         // };
-        // struct ResetEvent : Command
+        // struct ResetEvent
         // {
         //     ResetEvent() {}
         // private:
@@ -557,7 +556,7 @@ namespace vg
         //     void operator()(CmdBuffer& commandBuffer) const;
         //     friend CmdBuffer;
         // };
-        // struct WaitEvents : Command
+        // struct WaitEvents
         // {
         //     WaitEvents() {}
         // private:
@@ -574,7 +573,7 @@ namespace vg
         //     void operator()(CmdBuffer& commandBuffer) const;
         //     friend CmdBuffer;
         // };
-        // struct BeginQuery : Command
+        // struct BeginQuery
         // {
         //     BeginQuery() {}
         // private:
@@ -584,7 +583,7 @@ namespace vg
         //     void operator()(CmdBuffer& commandBuffer) const;
         //     friend CmdBuffer;
         // };
-        // struct EndQuery : Command
+        // struct EndQuery
         // {
         //     EndQuery() {}
         // private:
@@ -593,7 +592,7 @@ namespace vg
         //     void operator()(CmdBuffer& commandBuffer) const;
         //     friend CmdBuffer;
         // };
-        // struct ResetQueryPool : Command
+        // struct ResetQueryPool
         // {
         //     ResetQueryPool() {}
         // private:
@@ -603,7 +602,7 @@ namespace vg
         //     void operator()(CmdBuffer& commandBuffer) const;
         //     friend CmdBuffer;
         // };
-        // struct WriteTimestamp : Command
+        // struct WriteTimestamp
         // {
         //     WriteTimestamp() {}
         // private:
@@ -613,7 +612,7 @@ namespace vg
         //     void operator()(CmdBuffer& commandBuffer) const;
         //     friend CmdBuffer;
         // };
-        // struct CopyQueryPoolResults : Command
+        // struct CopyQueryPoolResults
         // {
         //     CopyQueryPoolResults() {}
         // private:
@@ -627,7 +626,7 @@ namespace vg
         //     void operator()(CmdBuffer& commandBuffer) const;
         //     friend CmdBuffer;
         // };
-        struct NextSubpass : Command
+        struct NextSubpass
         {
             NextSubpass(SubpassContents subpassContents) :subpassContents(subpassContents) {}
         private:
@@ -635,12 +634,59 @@ namespace vg
             friend CmdBuffer;
             SubpassContents subpassContents;
         };
+
+        struct ResetQueryPool
+        {
+            ResetQueryPool(QueryPoolHandle queryPool, int queryCount, int firstQuery = 0) :
+                queryPool(queryPool), queryCount(queryCount), firstQuery(firstQuery)
+            {}
+        private:
+            void operator()(CmdBuffer& commandBuffer) const;
+            friend CmdBuffer;
+            QueryPoolHandle queryPool;
+            int queryCount;
+            int firstQuery;
+
+        };
+        struct WriteTimestamp
+        {
+            WriteTimestamp(Flags<PipelineStage> pipelineStage, QueryPoolHandle queryPool, uint32_t query) :
+                pipelineStage(pipelineStage),
+                queryPool(queryPool),
+                query(query)
+            {}
+        private:
+            void operator()(CmdBuffer& commandBuffer) const;
+            friend CmdBuffer;
+            Flags<PipelineStage> pipelineStage;
+            QueryPoolHandle queryPool;
+            uint32_t query;
+        };
     }
 
+
     template<class T>
-    concept Command = std::is_base_of<cmd::Command, T>::value;
+    concept Command = requires(T a, vg::CmdBuffer & buffer)
+    {
+        { a(buffer) } -> std::same_as<void>;
+    };
+
+    template<typename T, std::size_t... Is>
+    constexpr bool AreCommands(const T& tuple, std::index_sequence<Is...>)
+    {
+        return (Command<std::tuple_element_t<Is, T>> && ...);
+    }
+
+    template<typename T>
+    concept CommandsTuple = requires(T t)
+    {
+        { AreCommands(t, std::make_index_sequence<std::tuple_size_v<T>>{}) } -> std::same_as<bool>;
+    };
+
     template<class... T>
-    concept Commands = (std::is_base_of<cmd::Command, T>::value && ...);
+    concept Commands = ((Command<T> || CommandsTuple<T>) && ...);
+
+
     /**
      *@brief Array of commands
      * Used to send commands to the GPU in one big batch improving performance
@@ -690,7 +736,7 @@ namespace vg
          * @tparam T class derived from cmd::Command
          * @param commands Array of commands from cmd:: namespace
          */
-        template<Commands... T>
+        template<typename... T>
         CmdBuffer& Append(const T&... commands) { (..., _Append(std::move(commands))); return *this; }
 
         /**
@@ -721,8 +767,18 @@ namespace vg
         }
 
     private:
+
+        template<Command... T>
+        void _Append(const std::tuple<T...>& commandTuple)
+        {
+            std::apply([this](const T&... args) {(..., _Append(std::move(args))); }, commandTuple);
+        };
+
         template<Command T>
-        void _Append(const T& command) { command(*this); };
+        void _Append(const T& command)
+        {
+            command(*this);
+        };
 
     private:
         CmdBufferHandle m_handle;

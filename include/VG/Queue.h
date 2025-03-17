@@ -1,5 +1,4 @@
 #pragma once
-#include <cstdint>
 #include "Span.h"
 #include "Handle.h"
 #include "Enums.h"

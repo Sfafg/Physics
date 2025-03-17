@@ -442,6 +442,28 @@ namespace vg
         S = 32,
     };
 
+    enum class SamplerReduction
+    {
+        WeightedAverage = 0,
+        Min = 1,
+        Max = 2,
+    };
+
+    enum class QueryType
+    {
+        Occlusion = 0,
+        PipelineStatistics = 1,
+        Timestamp = 2,
+    };
+
+    enum class QueryResult
+    {
+        _64Bit = 1,
+        Wait = 2,
+        WithAvailibility = 4,
+        Partial = 8,
+    };
+
     enum class FormatFeature
     {
         SampledImage = 0x00000001,

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <iostream>
-#include <set>
+#include <unordered_set>
 #include <tuple>
 #include <concepts>
 #include <cassert>
@@ -16,6 +16,8 @@ namespace ECS
     template <typename TComponent>
     concept ComponentDerived = std::is_base_of_v<Component<TComponent>, TComponent>;
 
+    /// @brief Tabela komponentów.
+    /// @details Zawiera informacje do indeksowania komponentów Jednostki.
     template<ComponentDerived... TComponents>
     struct ComponentTable
     {
@@ -39,6 +41,9 @@ namespace ECS
 
         std::tuple<ComponentIndex<TComponents>...> table;
 
+        template <typename TComponent>
+        friend class Component;
+
         template<ComponentDerived... UComponents>
         friend class EntityTemplate;
 
@@ -55,6 +60,9 @@ namespace ECS
     };
 
     class Entity;
+
+    /// @brief Template jednostki, do której przypisane odpowiednie komponenty.
+    /// @tparam ...TComponents Lista komponentów jakie mogą być przypisane do danej jednostki.
     template<ComponentDerived... TComponents>
     struct EntityTemplate
     {
@@ -65,9 +73,18 @@ namespace ECS
         EntityTemplate& operator=(EntityTemplate&& other) noexcept;
         EntityTemplate& operator=(const EntityTemplate& other);
 
+        /// @brief Tworzy nową jednostke i zwraca do niej odnośnik.
+        /// @tparam TEntity
+        /// @tparam ...UComponents lista typów komponentów jakie będą przypisane do Jednostki. 
+        /// @param ...components komponenty
+        /// @return odnośnik do stworzonej Jednostki
         template <typename TEntity = Entity, ComponentDerived... UComponents>
         static TEntity AddEntity(UComponents&&... components);
 
+        /// @brief Dodaje komponent do jednostki.
+        /// @tparam TComponent 
+        /// @param component komponent
+        /// @return wskaźnik do dodanego kompoentu
         template <ComponentDerived TComponent>
         TComponent& AddComponent(TComponent&& component);
 
@@ -80,6 +97,7 @@ namespace ECS
         template <ComponentDerived TComponent>
         EntityTemplate& DestroyComponent();
 
+        /// @brief Niszczy obiekt oraz wszystkie jego komponenty.
         void Destroy();
 
     protected:
@@ -88,7 +106,8 @@ namespace ECS
     private:
         uint32_t index;
 
-        static std::set<EntityTemplate*> entityReferances;
+        static std::unordered_set<EntityTemplate*> entityReferances;
+        static std::unordered_map<int, int> referenceCount;
         static std::vector<ComponentTable<TComponents...>> entities;
 
         template <typename TComponent>
@@ -97,6 +116,8 @@ namespace ECS
         friend class System;
     };
 
+    /// @brief Klasa bazowa dla komponentów
+    /// @tparam TComponent typ komponentu, bedącego dzieckiem tej klasy. (CRTP)
     template <typename TComponent>
     class Component
     {
@@ -132,6 +153,8 @@ namespace ECS
         friend class System;
     };
 
+    /// @brief Klasa bazowa dla systemów, które przetwarzają komponenty pewnego typu. 
+    /// @tparam TComponent typ przetwarzanych komponentów 
     template <ComponentDerived TComponent>
     class System
     {
@@ -142,7 +165,7 @@ namespace ECS
         template <typename TEntity>
         static void DestroyComponent(uint64_t index);
 
-    protected:
+    public:
         static std::vector<TComponent> components;
         template<ComponentDerived... TComponents>
         friend class EntityTemplate;

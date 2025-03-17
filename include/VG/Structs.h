@@ -853,11 +853,10 @@ namespace vg
         float lineWidth = 1.0f;
 
         Rasterizer()
-            :discard(true)
         {}
 
-        Rasterizer(bool depthClamp, PolygonMode polygonMode, CullMode cullMode = CullMode::Back, FrontFace frontFace = FrontFace::CounterClockwise, DepthBias depthBias = DepthBias(), float lineWidth = 1.0f)
-            :discard(false), depthClamp(depthClamp), polygonMode(polygonMode), cullMode(cullMode), frontFace(frontFace), depthBias(depthBias), lineWidth(lineWidth)
+        Rasterizer(bool depthClamp, bool discard, PolygonMode polygonMode, CullMode cullMode = CullMode::Back, FrontFace frontFace = FrontFace::CounterClockwise, DepthBias depthBias = DepthBias(), float lineWidth = 1.0f)
+            :discard(discard), depthClamp(depthClamp), polygonMode(polygonMode), cullMode(cullMode), frontFace(frontFace), depthBias(depthBias), lineWidth(lineWidth)
         {}
 
 

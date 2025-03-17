@@ -1,5 +1,4 @@
 #pragma once
-
 #ifdef VULKAN_HPP
 #define HANDLE(name, nativeName)\
 class name : public vk::nativeName\
@@ -25,7 +24,6 @@ public:\
     bool operator==(name rhs) const { return  m_handle == rhs; }\
 };
 #endif
-
 
 namespace vg
 {
@@ -55,5 +53,6 @@ namespace vg
     HANDLE(DescriptorPoolHandle, DescriptorPool);
     HANDLE(DescriptorSetHandle, DescriptorSet);
     HANDLE(SamplerHandle, Sampler);
+    HANDLE(QueryPoolHandle, QueryPool);
 }
 #undef HANDLE

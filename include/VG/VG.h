@@ -4,6 +4,7 @@
 #include "CmdPool.h"
 #include "ComputePipeline.h"
 #include "DescriptorPool.h"
+#include "QueryPool.h"
 #include "DescriptorSet.h"
 #include "Device.h"
 #include "Enums.h"

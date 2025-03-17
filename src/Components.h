@@ -7,31 +7,47 @@
 #include "VG/VG.h"
 #include "ECS.h"
 
+/// @brief Komponent przechowujący dane do transformacji obiektów.
 struct Transform : public ECS::Component<Transform>
 {
     glm::dvec3 position;
     glm::dvec3 scale;
     glm::dquat rotation;
+    bool updateFlag;
 
     Transform(const glm::dvec3& position = glm::dvec3(0, 0, 0), const glm::dvec3& scale = glm::dvec3(1, 1, 1), const glm::dquat& rotation = glm::dquat(1, 0, 0, 0));
 
+    /// @brief Oblicza macierz transformacji
+    /// @return macierz transformacji
     glm::mat4 Matrix() const;
+
+    /// @brief Oblicza wektor  {0,1,0} w koordynatach globalnych.
+    /// @return wektor
     glm::dvec3 Forward() const;
+
+    /// @brief Oblicza wektor  {0,0,1} w koordynatach globalnych.
+    /// @return wektor
     glm::dvec3 Up() const;
+
+    /// @brief Oblicza wektor  {1,0,0} w koordynatach globalnych.
+    /// @return wektor
     glm::dvec3 Right() const;
 };
 
+/// @brief Komponent przechowujący informacje na temat siatki oraz materiału pewnego obiektu.
 struct MeshArray : public ECS::Component<MeshArray>
 {
-    std::vector<Mesh> meshes;
-
-    BufferArray dynamicBuffer;
-    vg::DescriptorSet dynamicBufferDescriptorSet;
+    uint8_t materialID;
+    uint8_t materialVariantID;
+    uint16_t meshID;
 
     MeshArray() {}
-    MeshArray(std::vector<Mesh>&& meshes);
+    MeshArray(uint8_t materialID, uint8_t materialVariantID, uint16_t meshID)
+        :materialID(materialID), materialVariantID(materialVariantID), meshID(meshID)
+    {}
 };
 
+/// @brief Komponent przechowujący dane obiektu kolizyjnego.
 struct Collider : public ECS::Component<Collider>
 {
     enum class Type
@@ -56,14 +72,9 @@ private:
     glm::dvec3 LocalSupportMapping(glm::dvec3 direction) const;
 };
 
+/// @brief Komponent przechowujacy dane ciała sztywnego.
 struct RigidBody : public ECS::Component<RigidBody>
 {
-    double mass;
-    double inverseMass;
-    double restitutionCoefficient;
-    double staticFrictionCoefficient;
-    double dynamicFrictionCoefficient;
-
     glm::dvec3 velocity;
     glm::dvec3 angularVelocity;
     glm::dvec3 centerOfMass;
@@ -75,6 +86,12 @@ struct RigidBody : public ECS::Component<RigidBody>
 
     glm::dmat3 inertiaTensor;
     glm::dmat3 inverseInertiaTensor;
+
+    double mass;
+    double inverseMass;
+    double restitutionCoefficient;
+    double staticFrictionCoefficient;
+    double dynamicFrictionCoefficient;
 
     RigidBody();
     RigidBody(const glm::dvec3& velocity, const glm::dvec3& angularVelocity, const glm::dvec3& centerOfMass, double mass, const glm::dmat3& inertiaTensor, double restitutionCoefficient = 1.0, double staticFrictionCoefficient = 0.9, double dynamicFrictionCoefficient = 0.68);

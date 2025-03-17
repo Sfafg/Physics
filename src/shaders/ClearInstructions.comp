@@ -1,0 +1,26 @@
+#version 450
+
+struct DrawIndexed 
+{
+    uint indexCount;
+    uint instanceCount;
+    uint firstIndex;
+    uint vertexOffset;
+    uint firstInstance;
+};
+layout(push_constant) uniform PushConstants{
+    uint instructionCount;
+};
+layout(std430, binding = 0) buffer DrawInstructions{
+    DrawIndexed drawInstructions[];
+};
+
+layout (local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
+void main()
+{
+	uint index = gl_GlobalInvocationID.x;
+	if(index > instructionCount)
+		return;
+		
+	drawInstructions[index].instanceCount = 0;
+}
