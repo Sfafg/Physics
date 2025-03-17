@@ -209,9 +209,11 @@ int main()
     rigidBodies[1] = Entity::AddEntity(
         Transform({ 0, 0, 0 }, { 1,1,1 }),
         Collider({ 1,1,1 }),
-        RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, 1, glm::dmat3(1.0 / 6.0 * 2 * 2), 0.0, 0.2, 0.3),
+        RigidBody({ 0,0,0 }, { 0,0,0 }, { 0,0,0 }, 1, glm::dmat3(1.0 / 6.0 * 2 * 2), 0.0),
         MeshArray({ cubeMesh })
     );
+
+
 
     Transform cameraTransform({ 0.5,-2.5,0.5 });
     static float fov = 70;
@@ -291,15 +293,42 @@ int main()
                 rigidBodies[0].GetComponent<Transform>().position -= glm::dvec3{ 0,1,0 } *speed;
         }
 
+        auto s = [](glm::dvec3 direction)
+            {
+                double radius = 1;
+                double height = 2;
+                glm::dvec2 xy = glm::normalize(glm::dvec2(direction.x, direction.y)) * radius;
+                return glm::dvec3{ xy.x,xy.y, direction.z > 0 ? height : -height };
+            };
+
+        // srand(0);
+        // for (int i = 0; i < 100; i++)
+        // {
+        //     glm::dvec3 dir(rand() / double(RAND_MAX), rand() / double(RAND_MAX), rand() / double(RAND_MAX));
+        //     dir -= glm::dvec3{ 0.5, 0.5, 0.5 };
+        //     glm::dvec3 p = s(dir);
+        //     DebugDraw::Sphere(p, 0.01);
+        // }
+
         auto p = ColliderManager::GetPenetrations();
+        for (auto&& i : p)
+        {
+            DebugDraw::color = { 1,0,0,1 };
+            DebugDraw::Sphere(i.a->GetComponent<Transform>().rotation * i.pointA + i.a->GetComponent<Transform>().position, 0.01);
+            DebugDraw::color = { 0,1,0,1 };
+            DebugDraw::Sphere(i.b->GetComponent<Transform>().rotation * i.pointB + i.b->GetComponent<Transform>().position, 0.01);
+            DebugDraw::color = { 1,1,0,1 };
+            DebugDraw::Ray(i.b->GetComponent<Transform>().rotation * i.pointB + i.b->GetComponent<Transform>().position, i.normal * i.depth, 0.01);
+        }
+
         if (glfwGetKey(window, GLFW_KEY_ENTER))
         {
             if (!enterPressed || !glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || true)
             {
-                for (int k = 0; k < 4; k++)
+                for (int k = 0; k < 1; k++)
                 {
                     Physics::Update(1 / 64.0, 16);
-                    if (frameCount % 100 == 99 && rbs != 30)
+                    if (frameCount % 100 == 99 && rbs != 30 && false)
                     {
                         int type = rand() % 2;
                         dvec3 pos;

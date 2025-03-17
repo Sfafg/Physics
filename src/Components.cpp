@@ -59,6 +59,7 @@ double Collider::GetBoundingSphereRadius() const
         return -1;
     }
 }
+
 glm::dvec3 Collider::LocalSupportMapping(glm::dvec3 direction) const
 {
     switch (type)

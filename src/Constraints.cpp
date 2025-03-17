@@ -2,7 +2,7 @@
 
 std::tuple<dvec3, double> ApplyPositionDelta(dvec3 changeNormal, double changeMagnitude, RigidBody& a, dvec3 r1, RigidBody& b, dvec3 r2, double alpha)
 {
-    double lambda = -changeMagnitude / (a.GetMass(r1, changeNormal) + b.GetMass(r1, changeNormal) + alpha);
+    double lambda = -changeMagnitude / (a.GetMass(r1, changeNormal) + b.GetMass(r2, changeNormal) + alpha);
     dvec3 impulse = lambda * changeNormal;
 
     return { impulse,lambda };
